@@ -1,21 +1,23 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"log"
 	"os"
 	"path/filepath"
 
-	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"github.com/Azure/brigade/pkg/brigade"
+	"github.com/Azure/brigade/pkg/storage/kube"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-// This program lists the pods in a cluster equivalent to
-//
-// kubectl get pods
-//
+type Test struct {
+	Name string
+	Type string
+}
+
 func main() {
 	var ns string
 	flag.StringVar(&ns, "namespace", "", "namespace")
@@ -34,13 +36,23 @@ func main() {
 		log.Fatal(err)
 	}
 
-	se := &v1.Secret{
-		ObjectMeta: metav1.ObjectMeta{Name: "test-secret-2"},
-		StringData: map[string]string{"name": "Simon"},
-	}
-	_, err = clientset.CoreV1().Secrets("default").Create(se)
-	if err != nil {
-		log.Fatalln("failed to create secret:", err)
+	tst := &Test{
+		Name: "mytest",
+		Type: "shell",
 	}
 
+	payload, _ := json.Marshal(tst)
+	b := &brigade.Build{
+		ProjectID: "abcdefg",
+		Type:      "idon'tknow",
+		Provider:  "wliang",
+		Revision:  &brigade.Revision{Ref: "refs/heads/master"},
+		Payload:   payload,
+	}
+
+	store := kube.New(clientset, "default")
+	err = store.CreateBuild(b)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
