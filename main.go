@@ -23,7 +23,7 @@ func main() {
 	flag.StringVar(&ns, "namespace", "", "namespace")
 
 	// Bootstrap k8s configuration from local 	Kubernetes config file
-	kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config")
+	kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config.backup")
 	log.Println("Using kubeconfig file: ", kubeconfig)
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
@@ -43,11 +43,12 @@ func main() {
 
 	payload, _ := json.Marshal(tst)
 	b := &brigade.Build{
-		ProjectID: "abcdefg",
-		Type:      "idon'tknow",
+		ProjectID: "brigade-68d2c7440da7da85970d5abf22c2fd2eea6239e67cfca22a9766c1",
+		Type:      "wisecloud/test",
 		Provider:  "wliang",
 		Revision:  &brigade.Revision{Ref: "refs/heads/master"},
 		Payload:   payload,
+		Script:    []byte("console.log('hello from liang');"),
 	}
 
 	store := kube.New(clientset, "default")
