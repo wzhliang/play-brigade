@@ -15,8 +15,11 @@ import (
 )
 
 type Test struct {
-	Name string
-	Type string
+	Name    string `json:"name"`
+	Type    string `json:"type"`
+	Stack   string `json:"stack"`
+	Tenant  string `json:"tenant"`
+	Service string `json:"service"`
 }
 
 func main() {
@@ -38,8 +41,11 @@ func main() {
 	}
 
 	tst := &Test{
-		Name: "mytest",
-		Type: "shell",
+		Name:    "mytest",
+		Type:    "shell",
+		Stack:   "super",
+		Service: "hello",
+		Tenant:  "boss",
 	}
 
 	payload, _ := json.Marshal(tst)
