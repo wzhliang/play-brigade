@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -42,13 +43,17 @@ func main() {
 	}
 
 	payload, _ := json.Marshal(tst)
+	js, err := ioutil.ReadFile("brigade.js")
+	if err != nil {
+		log.Fatal(err)
+	}
 	b := &brigade.Build{
 		ProjectID: "brigade-68d2c7440da7da85970d5abf22c2fd2eea6239e67cfca22a9766c1",
 		Type:      "wisecloud/test",
 		Provider:  "wliang",
 		Revision:  &brigade.Revision{Ref: "refs/heads/master"},
 		Payload:   payload,
-		Script:    []byte("console.log('hello from liang');"),
+		Script:    js,
 	}
 
 	store := kube.New(clientset, "default")
